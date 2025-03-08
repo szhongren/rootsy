@@ -1,0 +1,125 @@
+{
+  "name": "rootsy",
+  "displayName": "rootsy",
+  "description": "Root cause errors in prod from your editor",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.98.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "rootsy.helloWorld",
+        "title": "Hello World"
+      },
+      {
+        "command": "rootsy.openSettings",
+        "title": "Rootsy: Open Settings"
+      }
+    ],
+    "configuration": {
+      "title": "Rootsy",
+      "properties": {
+        "rootsy.llmProvider": {
+          "type": "string",
+          "enum": [
+            "openai",
+            "anthropic",
+            "ollama"
+          ],
+          "default": "openai",
+          "description": "Select the LLM provider to use for root cause analysis"
+        },
+        "rootsy.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key for the selected LLM provider (not required for Ollama)"
+        },
+        "rootsy.ollamaEndpoint": {
+          "type": "string",
+          "default": "http://localhost:11434",
+          "description": "Endpoint URL for Ollama (only used when Ollama is selected)"
+        },
+        "rootsy.ollamaModel": {
+          "type": "string",
+          "default": "llama3",
+          "description": "Model to use with Ollama"
+        },
+        "rootsy.cloudProvider": {
+          "type": "string",
+          "enum": [
+            "aws",
+            "azure",
+            "gcp"
+          ],
+          "default": "aws",
+          "description": "Select the cloud provider to pull logs from"
+        },
+        "rootsy.aws.accessKeyId": {
+          "type": "string",
+          "default": "",
+          "description": "AWS Access Key ID"
+        },
+        "rootsy.aws.secretAccessKey": {
+          "type": "string",
+          "default": "",
+          "description": "AWS Secret Access Key"
+        },
+        "rootsy.aws.region": {
+          "type": "string",
+          "default": "us-east-1",
+          "description": "AWS Region"
+        },
+        "rootsy.azure.tenantId": {
+          "type": "string",
+          "default": "",
+          "description": "Azure Tenant ID"
+        },
+        "rootsy.azure.clientId": {
+          "type": "string",
+          "default": "",
+          "description": "Azure Client ID"
+        },
+        "rootsy.azure.clientSecret": {
+          "type": "string",
+          "default": "",
+          "description": "Azure Client Secret"
+        },
+        "rootsy.gcp.projectId": {
+          "type": "string",
+          "default": "",
+          "description": "Google Cloud Project ID"
+        },
+        "rootsy.gcp.keyFilePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to Google Cloud service account key file (JSON)"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "pnpm run compile && pnpm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.98.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
+    "eslint": "^9.21.0",
+    "typescript": "^5.7.3",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1"
+  }
+}
