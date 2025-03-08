@@ -29,7 +29,8 @@ export class RootsyWebviewProvider implements vscode.WebviewViewProvider {
       localResourceRoots: [this._extensionUri]
     };
 
-    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+    // Set initial HTML
+    this._updateWebviewHtml(webviewView.webview);
 
     // Handle messages from the webview
     webviewView.webview.onDidReceiveMessage(async (message) => {
@@ -66,7 +67,15 @@ export class RootsyWebviewProvider implements vscode.WebviewViewProvider {
       return;
     }
 
-    this._view.webview.html = this._getHtmlForWebview(this._view.webview);
+    await this._updateWebviewHtml(this._view.webview);
+  }
+
+  /**
+   * Updates the webview HTML content
+   */
+  private async _updateWebviewHtml(webview: vscode.Webview): Promise<void> {
+    const html = await this._getHtmlForWebview(webview);
+    webview.html = html;
   }
 
   /**

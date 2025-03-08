@@ -771,8 +771,8 @@ export async function activate(context: vscode.ExtensionContext) {
         
         // Assign logs to the group
         await storageManager.assignLogsToGroup(
-          logs.map(log => log.id),
-          logGroup.id
+          logGroup.id,
+          logs.map(log => log.id)
         );
         
         // Refresh the webview
@@ -824,8 +824,8 @@ export async function activate(context: vscode.ExtensionContext) {
         
         // Assign logs to the group
         await storageManager.assignLogsToGroup(
-          logs.map(log => log.id),
-          logGroup.id
+          logGroup.id,
+          logs.map(log => log.id)
         );
         
         // Refresh the webview
@@ -874,7 +874,9 @@ export async function activate(context: vscode.ExtensionContext) {
           logGroup.rootCause = "The application is experiencing connection timeouts to the database due to high load.";
           logGroup.suggestedFix = "Consider increasing the connection pool size and implementing retry logic with exponential backoff.";
           
-          await storageManager.updateLogGroup(logGroup);
+          if (storageManager) {
+            await storageManager.updateLogGroup(logGroup);
+          }
           
           // Refresh the webview
           if (webviewProvider) {
