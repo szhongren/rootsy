@@ -3,9 +3,13 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import { StorageManager } from "./storage/storageManager";
+import { RootsyWebviewProvider } from "./ui/webviewProvider";
+import { v4 as uuidv4 } from "uuid";
+import { showError } from "./utils/helpers";
 
 // Global storage manager instance
 let storageManager: StorageManager | undefined;
+let webviewProvider: RootsyWebviewProvider | undefined;
 
 /**
  * Manages the settings webview panel
@@ -649,6 +653,18 @@ export async function activate(context: vscode.ExtensionContext) {
     storageManager = new StorageManager(context);
     await storageManager.initialize();
     console.log("Storage manager initialized successfully");
+    
+    // Initialize webview provider
+    webviewProvider = new RootsyWebviewProvider(context.extensionUri, storageManager);
+    
+    // Register webview provider
+    const webviewView = vscode.window.registerWebviewViewProvider(
+      RootsyWebviewProvider.viewType,
+      webviewProvider
+    );
+    
+    context.subscriptions.push(webviewView);
+    
   } catch (error) {
     console.error("Failed to initialize storage manager:", error);
     vscode.window.showErrorMessage(
@@ -679,6 +695,52 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(helloWorldCommand, openSettingsCommand);
+}
+
+/**
+ * Generates mock logs for testing
+ */
+function generateMockLogs(sessionId: string, errorLogsOnly: boolean): any[] {
+  const logs = [];
+  const now = Date.now();
+  const services = ['lambda', 'api-gateway', 'dynamodb', 's3'];
+  const logLevels = ['INFO', 'WARN', 'ERROR', 'DEBUG'];
+  
+  // Generate some mock logs
+  for (let i = 0; i < 20; i++) {
+    const isError = Math.random() < 0.3;
+    const logLevel = isError ? 'ERROR' : logLevels[Math.floor(Math.random() * logLevels.length)];
+    
+    if (errorLogsOnly && logLevel !== 'ERROR') {
+      continue;
+    }
+    
+    const service = services[Math.floor(Math.random() * services.length)];
+    const timestamp = now - Math.floor(Math.random() * 86400000); // Random time in the last 24 hours
+    
+    let logContent = '';
+    if (logLevel === 'ERROR') {
+      logContent = `[${logLevel}] Error processing request: Connection timeout or resource not found`;
+    } else if (logLevel === 'WARN') {
+      logContent = `[${logLevel}] Slow response time detected for request`;
+    } else {
+      logContent = `[${logLevel}] Request processed successfully`;
+    }
+    
+    logs.push({
+      id: uuidv4(),
+      sessionId,
+      logContent,
+      timestamp,
+      service,
+      logLevel
+    });
+  }
+  
+  // Sort by timestamp
+  logs.sort((a, b) => a.timestamp - b.timestamp);
+  
+  return logs;
 }
 
 // This method is called when your extension is deactivated

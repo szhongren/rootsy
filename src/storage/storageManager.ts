@@ -47,6 +47,7 @@ export interface LogGroup {
  */
 export class StorageManager {
   private db: Database;
+  private currentSession: Session | null = null;
 
   /**
    * Creates a new StorageManager instance
@@ -54,6 +55,28 @@ export class StorageManager {
    */
   constructor(context: vscode.ExtensionContext) {
     this.db = new Database(context);
+  }
+  
+  /**
+   * Gets the current active session
+   * @returns The current session or null if none is active
+   */
+  public getCurrentSession(): Session | null {
+    return this.currentSession;
+  }
+  
+  /**
+   * Sets the current active session
+   * @param sessionId The ID of the session to set as active
+   * @returns The session that was set as active, or null if not found
+   */
+  public async setCurrentSession(sessionId: string): Promise<Session | null> {
+    const session = await this.getSession(sessionId);
+    if (session) {
+      this.currentSession = session;
+      return session;
+    }
+    return null;
   }
 
   /**

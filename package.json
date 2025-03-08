@@ -20,8 +20,42 @@
       {
         "command": "rootsy.openSettings",
         "title": "Rootsy: Open Settings"
+      },
+      {
+        "command": "rootsy.createSession",
+        "title": "Rootsy: Create New Debugging Session"
+      },
+      {
+        "command": "rootsy.pullErrorLogs",
+        "title": "Rootsy: Pull Error Logs"
+      },
+      {
+        "command": "rootsy.pullAllLogs",
+        "title": "Rootsy: Pull All Logs"
+      },
+      {
+        "command": "rootsy.analyzeLogGroup",
+        "title": "Rootsy: Analyze Log Group"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "rootsy-explorer",
+          "title": "Rootsy",
+          "icon": "resources/rootsy.svg"
+        }
+      ]
+    },
+    "views": {
+      "rootsy-explorer": [
+        {
+          "type": "webview",
+          "id": "rootsy.webview",
+          "name": "Rootsy"
+        }
+      ]
+    },
     "configuration": {
       "title": "Rootsy",
       "properties": {
