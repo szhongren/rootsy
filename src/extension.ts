@@ -693,8 +693,216 @@ export async function activate(context: vscode.ExtensionContext) {
       SettingsPanel.createOrShow(context.extensionUri);
     }
   );
+  
+  // Register the command to create a new session
+  const createSessionCommand = vscode.commands.registerCommand(
+    "rootsy.createSession",
+    async () => {
+      if (!storageManager) {
+        showError("Storage manager not initialized");
+        return;
+      }
+      
+      const name = await vscode.window.showInputBox({
+        prompt: "Enter a name for the new debugging session",
+        placeHolder: "My Debugging Session"
+      });
+      
+      if (!name) return;
+      
+      const config = vscode.workspace.getConfiguration("rootsy");
+      const cloudProvider = config.get("cloudProvider", "aws");
+      
+      try {
+        const now = Date.now();
+        const session = await storageManager.createSession(
+          name,
+          cloudProvider,
+          now - 172800000, // 2 days ago
+          now
+        );
+        
+        vscode.window.showInformationMessage(`Created new session: ${session.name}`);
+        
+        // Refresh the webview
+        if (webviewProvider) {
+          webviewProvider.refresh();
+        }
+        
+      } catch (error) {
+        showError(error);
+      }
+    }
+  );
+  
+  // Register the command to pull error logs
+  const pullErrorLogsCommand = vscode.commands.registerCommand(
+    "rootsy.pullErrorLogs",
+    async () => {
+      if (!storageManager) {
+        showError("Storage manager not initialized");
+        return;
+      }
+      
+      const currentSession = storageManager.getCurrentSession();
+      if (!currentSession) {
+        vscode.window.showErrorMessage("No active session. Please create or select a session first.");
+        return;
+      }
+      
+      try {
+        vscode.window.showInformationMessage("Fetching error logs...");
+        
+        // Mock implementation for now
+        const logs = generateMockLogs(currentSession.id, true);
+        
+        await storageManager.saveLogs(logs);
+        
+        // Update session status
+        currentSession.status = "in_progress";
+        await storageManager.updateSession(currentSession);
+        
+        // Create a basic log group
+        const logGroup = await storageManager.createLogGroup(
+          currentSession.id,
+          "Error Logs",
+          "Automatically created group for error logs"
+        );
+        
+        // Assign logs to the group
+        await storageManager.assignLogsToGroup(
+          logs.map(log => log.id),
+          logGroup.id
+        );
+        
+        // Refresh the webview
+        if (webviewProvider) {
+          webviewProvider.refresh();
+        }
+        
+        vscode.window.showInformationMessage(`Fetched ${logs.length} error logs`);
+        
+      } catch (error) {
+        showError(error);
+      }
+    }
+  );
+  
+  // Register the command to pull all logs
+  const pullAllLogsCommand = vscode.commands.registerCommand(
+    "rootsy.pullAllLogs",
+    async () => {
+      if (!storageManager) {
+        showError("Storage manager not initialized");
+        return;
+      }
+      
+      const currentSession = storageManager.getCurrentSession();
+      if (!currentSession) {
+        vscode.window.showErrorMessage("No active session. Please create or select a session first.");
+        return;
+      }
+      
+      try {
+        vscode.window.showInformationMessage("Fetching all logs...");
+        
+        // Mock implementation for now
+        const logs = generateMockLogs(currentSession.id, false);
+        
+        await storageManager.saveLogs(logs);
+        
+        // Update session status
+        currentSession.status = "in_progress";
+        await storageManager.updateSession(currentSession);
+        
+        // Create a basic log group
+        const logGroup = await storageManager.createLogGroup(
+          currentSession.id,
+          "All Logs",
+          "Automatically created group for all logs"
+        );
+        
+        // Assign logs to the group
+        await storageManager.assignLogsToGroup(
+          logs.map(log => log.id),
+          logGroup.id
+        );
+        
+        // Refresh the webview
+        if (webviewProvider) {
+          webviewProvider.refresh();
+        }
+        
+        vscode.window.showInformationMessage(`Fetched ${logs.length} logs`);
+        
+      } catch (error) {
+        showError(error);
+      }
+    }
+  );
+  
+  // Register the command to analyze a log group
+  const analyzeLogGroupCommand = vscode.commands.registerCommand(
+    "rootsy.analyzeLogGroup",
+    async (logGroupId: string) => {
+      if (!storageManager) {
+        showError("Storage manager not initialized");
+        return;
+      }
+      
+      try {
+        const logGroup = await storageManager.getLogGroup(logGroupId);
+        if (!logGroup) {
+          showError("Log group not found");
+          return;
+        }
+        
+        vscode.window.showInformationMessage(`Analyzing log group: ${logGroup.name}`);
+        
+        // Update log group status
+        logGroup.status = "analyzing";
+        await storageManager.updateLogGroup(logGroup);
+        
+        // Refresh the webview
+        if (webviewProvider) {
+          webviewProvider.refresh();
+        }
+        
+        // Mock analysis (would be done with LLM in real implementation)
+        setTimeout(async () => {
+          logGroup.status = "analyzed";
+          logGroup.rootCause = "The application is experiencing connection timeouts to the database due to high load.";
+          logGroup.suggestedFix = "Consider increasing the connection pool size and implementing retry logic with exponential backoff.";
+          
+          await storageManager.updateLogGroup(logGroup);
+          
+          // Refresh the webview
+          if (webviewProvider) {
+            webviewProvider.refresh();
+          }
+          
+          vscode.window.showInformationMessage("Analysis complete");
+        }, 2000);
+        
+      } catch (error) {
+        showError(error);
+      }
+    }
+  );
 
-  context.subscriptions.push(helloWorldCommand, openSettingsCommand);
+  context.subscriptions.push(
+    helloWorldCommand,
+    openSettingsCommand,
+    createSessionCommand,
+    pullErrorLogsCommand,
+    pullAllLogsCommand,
+    analyzeLogGroupCommand
+  );
+  
+  // Return API for other components to use
+  return {
+    storageManager
+  };
 }
 
 /**
