@@ -35,10 +35,15 @@
           "default": "openai",
           "description": "Select the LLM provider to use for root cause analysis"
         },
-        "rootsy.apiKey": {
+        "rootsy.openai.apiKey": {
           "type": "string",
           "default": "",
-          "description": "API key for the selected LLM provider (not required for Ollama)"
+          "description": "API key for OpenAI"
+        },
+        "rootsy.anthropic.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key for Anthropic"
         },
         "rootsy.ollamaEndpoint": {
           "type": "string",

@@ -84,7 +84,16 @@ class SettingsPanel {
       settings.llmProvider,
       vscode.ConfigurationTarget.Global
     );
-    config.update("apiKey", settings.apiKey, vscode.ConfigurationTarget.Global);
+    config.update(
+      "openai.apiKey",
+      settings.openai.apiKey,
+      vscode.ConfigurationTarget.Global
+    );
+    config.update(
+      "anthropic.apiKey",
+      settings.anthropic.apiKey,
+      vscode.ConfigurationTarget.Global
+    );
     config.update(
       "ollamaEndpoint",
       settings.ollamaEndpoint,
@@ -178,7 +187,8 @@ class SettingsPanel {
 
     // LLM provider settings
     const currentProvider = config.get("llmProvider", "openai") as string;
-    const currentApiKey = config.get("apiKey", "");
+    const currentOpenAIApiKey = config.get("openai.apiKey", "");
+    const currentAnthropicApiKey = config.get("anthropic.apiKey", "");
     const currentOllamaEndpoint = config.get(
       "ollamaEndpoint",
       "http://localhost:11434"
@@ -286,19 +296,29 @@ class SettingsPanel {
                 <div class="description">Select the LLM provider to use for root cause analysis</div>
             </div>
             
-            <div id="apiKeySection" class="form-group">
-                <label for="apiKey">API Key</label>
-                <input type="password" id="apiKey" value="${currentApiKey}" />
-                <div class="description">API key for the selected LLM provider (not required for Ollama)</div>
-            </div>
-            
-            <div id="ollamaSection" class="provider-specific">
-               <div class="form-group">
+            <div id="openaiSection" class="provider-specific">
+               <div class="form-group" style="padding-right: 20px;">
+                   <label for="openaiApiKey">OpenAI API Key</label>
+                   <input type="password" id="openaiApiKey" value="${currentOpenAIApiKey}" />
+                   <div class="description">API key for OpenAI</div>
+               </div>
+           </div>
+           
+           <div id="anthropicSection" class="provider-specific">
+               <div class="form-group" style="padding-right: 20px;">
+                   <label for="anthropicApiKey">Anthropic API Key</label>
+                   <input type="password" id="anthropicApiKey" value="${currentAnthropicApiKey}" />
+                   <div class="description">API key for Anthropic</div>
+               </div>
+           </div>
+           
+           <div id="ollamaSection" class="provider-specific">
+               <div class="form-group" style="padding-right: 20px;">
                    <label for="ollamaEndpoint">Ollama Endpoint</label>
                    <input type="text" id="ollamaEndpoint" value="${currentOllamaEndpoint}" />
                    <div class="description">Endpoint URL for Ollama</div>
                </div>
-               <div class="form-group">
+               <div class="form-group" style="padding-right: 20px;">
                    <label for="ollamaModel">Ollama Model</label>
                    <input type="text" id="ollamaModel" value="${currentOllamaModel}" />
                    <div class="description">Model to use with Ollama</div>
@@ -324,17 +344,17 @@ class SettingsPanel {
            </div>
            
            <div id="awsSection" class="provider-specific">
-               <div class="form-group">
+               <div class="form-group" style="padding-right: 20px;">
                    <label for="awsAccessKeyId">AWS Access Key ID</label>
                    <input type="password" id="awsAccessKeyId" value="${currentAwsAccessKeyId}" />
                    <div class="description">Your AWS Access Key ID</div>
                </div>
-               <div class="form-group">
+               <div class="form-group" style="padding-right: 20px;">
                    <label for="awsSecretAccessKey">AWS Secret Access Key</label>
                    <input type="password" id="awsSecretAccessKey" value="${currentAwsSecretAccessKey}" />
                    <div class="description">Your AWS Secret Access Key</div>
                </div>
-               <div class="form-group">
+               <div class="form-group" style="padding-right: 20px;">
                    <label for="awsRegion">AWS Region</label>
                    <input type="text" id="awsRegion" value="${currentAwsRegion}" />
                    <div class="description">AWS Region (e.g., us-east-1)</div>
@@ -342,17 +362,17 @@ class SettingsPanel {
            </div>
            
            <div id="azureSection" class="provider-specific">
-               <div class="form-group">
+               <div class="form-group" style="padding-right: 20px;">
                    <label for="azureTenantId">Azure Tenant ID</label>
                    <input type="text" id="azureTenantId" value="${currentAzureTenantId}" />
                    <div class="description">Your Azure Tenant ID</div>
                </div>
-               <div class="form-group">
+               <div class="form-group" style="padding-right: 20px;">
                    <label for="azureClientId">Azure Client ID</label>
                    <input type="text" id="azureClientId" value="${currentAzureClientId}" />
                    <div class="description">Your Azure Client ID</div>
                </div>
-               <div class="form-group">
+               <div class="form-group" style="padding-right: 20px;">
                    <label for="azureClientSecret">Azure Client Secret</label>
                    <input type="password" id="azureClientSecret" value="${currentAzureClientSecret}" />
                    <div class="description">Your Azure Client Secret</div>
@@ -360,12 +380,12 @@ class SettingsPanel {
            </div>
            
            <div id="gcpSection" class="provider-specific">
-               <div class="form-group">
+               <div class="form-group" style="padding-right: 20px;">
                    <label for="gcpProjectId">GCP Project ID</label>
                    <input type="text" id="gcpProjectId" value="${currentGcpProjectId}" />
                    <div class="description">Your Google Cloud Project ID</div>
                </div>
-               <div class="form-group">
+               <div class="form-group" style="padding-right: 0;">
                    <label for="gcpKeyFilePath">GCP Key File Path</label>
                    <input type="text" id="gcpKeyFilePath" value="${currentGcpKeyFilePath}" />
                    <div class="description">Path to your Google Cloud service account key file (JSON)</div>
@@ -381,7 +401,8 @@ class SettingsPanel {
                 
                 // LLM provider elements
                 const llmProviderSelect = document.getElementById('llmProvider');
-                const apiKeySection = document.getElementById('apiKeySection');
+                const openaiSection = document.getElementById('openaiSection');
+                const anthropicSection = document.getElementById('anthropicSection');
                 const ollamaSection = document.getElementById('ollamaSection');
                 
                 // Cloud provider elements
@@ -396,12 +417,18 @@ class SettingsPanel {
                 function updateLlmProviderUI() {
                     const selectedProvider = llmProviderSelect.value;
                     
-                    if (selectedProvider === "ollama") {
-                        apiKeySection.style.display = 'none';
+                    // Hide all provider sections
+                    openaiSection.style.display = 'none';
+                    anthropicSection.style.display = 'none';
+                    ollamaSection.style.display = 'none';
+                    
+                    // Show the selected provider section
+                    if (selectedProvider === "openai") {
+                        openaiSection.style.display = 'block';
+                    } else if (selectedProvider === "anthropic") {
+                        anthropicSection.style.display = 'block';
+                    } else if (selectedProvider === "ollama") {
                         ollamaSection.style.display = 'block';
-                    } else {
-                        apiKeySection.style.display = 'block';
-                        ollamaSection.style.display = 'none';
                     }
                 }
                 
@@ -437,7 +464,12 @@ class SettingsPanel {
                     const settings = {
                         // LLM provider settings
                         llmProvider: llmProviderSelect.value,
-                        apiKey: document.getElementById('apiKey').value,
+                        openai: {
+                            apiKey: document.getElementById('openaiApiKey').value
+                        },
+                        anthropic: {
+                            apiKey: document.getElementById('anthropicApiKey').value
+                        },
                         ollamaEndpoint: document.getElementById('ollamaEndpoint').value,
                         ollamaModel: document.getElementById('ollamaModel').value,
                         
