@@ -94,8 +94,18 @@ class SettingsPanel {
       vscode.ConfigurationTarget.Global
     );
     config.update(
+      "openai.model",
+      settings.openai.model,
+      vscode.ConfigurationTarget.Global
+    );
+    config.update(
       "anthropic.apiKey",
       settings.anthropic.apiKey,
+      vscode.ConfigurationTarget.Global
+    );
+    config.update(
+      "anthropic.model",
+      settings.anthropic.model,
       vscode.ConfigurationTarget.Global
     );
     config.update(
@@ -205,7 +215,7 @@ class SettingsPanel {
     // AWS settings
     const currentAwsAccessKeyId = config.get("aws.accessKeyId", "");
     const currentAwsSecretAccessKey = config.get("aws.secretAccessKey", "");
-    const currentAwsRegion = config.get("aws.region", "us-east-1");
+    const currentAwsRegion = config.get("aws.region", "us-east-1") as string;
 
     // Azure settings
     const currentAzureTenantId = config.get("azure.tenantId", "");
@@ -306,6 +316,32 @@ class SettingsPanel {
                    <input type="password" id="openaiApiKey" value="${currentOpenAIApiKey}" />
                    <div class="description">API key for OpenAI</div>
                </div>
+               <div class="form-group" style="padding-right: 20px;">
+                   <label for="openaiModel">OpenAI Model</label>
+                   <select id="openaiModel">
+                       <option value="gpt-4o" ${
+                         config.get("openai.model") === "gpt-4o"
+                           ? "selected"
+                           : ""
+                       }>GPT-4o</option>
+                       <option value="gpt-4-turbo" ${
+                         config.get("openai.model") === "gpt-4-turbo"
+                           ? "selected"
+                           : ""
+                       }>GPT-4 Turbo</option>
+                       <option value="gpt-4" ${
+                         config.get("openai.model") === "gpt-4"
+                           ? "selected"
+                           : ""
+                       }>GPT-4</option>
+                       <option value="gpt-3.5-turbo" ${
+                         config.get("openai.model") === "gpt-3.5-turbo"
+                           ? "selected"
+                           : ""
+                       }>GPT-3.5 Turbo</option>
+                   </select>
+                   <div class="description">Select the OpenAI model to use</div>
+               </div>
            </div>
            
            <div id="anthropicSection" class="provider-specific">
@@ -313,6 +349,27 @@ class SettingsPanel {
                    <label for="anthropicApiKey">Anthropic API Key</label>
                    <input type="password" id="anthropicApiKey" value="${currentAnthropicApiKey}" />
                    <div class="description">API key for Anthropic</div>
+               </div>
+               <div class="form-group" style="padding-right: 20px;">
+                   <label for="anthropicModel">Anthropic Model</label>
+                   <select id="anthropicModel">
+                       <option value="claude-3-opus" ${
+                         config.get("anthropic.model") === "claude-3-opus"
+                           ? "selected"
+                           : ""
+                       }>Claude 3 Opus</option>
+                       <option value="claude-3-sonnet" ${
+                         config.get("anthropic.model") === "claude-3-sonnet"
+                           ? "selected"
+                           : ""
+                       }>Claude 3 Sonnet</option>
+                       <option value="claude-3-haiku" ${
+                         config.get("anthropic.model") === "claude-3-haiku"
+                           ? "selected"
+                           : ""
+                       }>Claude 3 Haiku</option>
+                   </select>
+                   <div class="description">Select the Anthropic model to use</div>
                </div>
            </div>
            
@@ -360,8 +417,72 @@ class SettingsPanel {
                </div>
                <div class="form-group" style="padding-right: 20px;">
                    <label for="awsRegion">AWS Region</label>
-                   <input type="text" id="awsRegion" value="${currentAwsRegion}" />
-                   <div class="description">AWS Region (e.g., us-east-1)</div>
+                   <select id="awsRegion">
+                       <option value="us-east-1" ${
+                         currentAwsRegion == "us-east-1" ? "selected" : ""
+                       }>US East (N. Virginia)</option>
+                       <option value="us-east-2" ${
+                         currentAwsRegion == "us-east-2" ? "selected" : ""
+                       }>US East (Ohio)</option>
+                       <option value="us-west-1" ${
+                         currentAwsRegion == "us-west-1" ? "selected" : ""
+                       }>US West (N. California)</option>
+                       <option value="us-west-2" ${
+                         currentAwsRegion == "us-west-2" ? "selected" : ""
+                       }>US West (Oregon)</option>
+                       <option value="af-south-1" ${
+                         currentAwsRegion == "af-south-1" ? "selected" : ""
+                       }>Africa (Cape Town)</option>
+                       <option value="ap-east-1" ${
+                         currentAwsRegion == "ap-east-1" ? "selected" : ""
+                       }>Asia Pacific (Hong Kong)</option>
+                       <option value="ap-south-1" ${
+                         currentAwsRegion == "ap-south-1" ? "selected" : ""
+                       }>Asia Pacific (Mumbai)</option>
+                       <option value="ap-northeast-1" ${
+                         currentAwsRegion == "ap-northeast-1" ? "selected" : ""
+                       }>Asia Pacific (Tokyo)</option>
+                       <option value="ap-northeast-2" ${
+                         currentAwsRegion == "ap-northeast-2" ? "selected" : ""
+                       }>Asia Pacific (Seoul)</option>
+                       <option value="ap-northeast-3" ${
+                         currentAwsRegion == "ap-northeast-3" ? "selected" : ""
+                       }>Asia Pacific (Osaka)</option>
+                       <option value="ap-southeast-1" ${
+                         currentAwsRegion == "ap-southeast-1" ? "selected" : ""
+                       }>Asia Pacific (Singapore)</option>
+                       <option value="ap-southeast-2" ${
+                         currentAwsRegion == "ap-southeast-2" ? "selected" : ""
+                       }>Asia Pacific (Sydney)</option>
+                       <option value="ca-central-1" ${
+                         currentAwsRegion == "ca-central-1" ? "selected" : ""
+                       }>Canada (Central)</option>
+                       <option value="eu-central-1" ${
+                         currentAwsRegion == "eu-central-1" ? "selected" : ""
+                       }>Europe (Frankfurt)</option>
+                       <option value="eu-west-1" ${
+                         currentAwsRegion == "eu-west-1" ? "selected" : ""
+                       }>Europe (Ireland)</option>
+                       <option value="eu-west-2" ${
+                         currentAwsRegion == "eu-west-2" ? "selected" : ""
+                       }>Europe (London)</option>
+                       <option value="eu-west-3" ${
+                         currentAwsRegion == "eu-west-3" ? "selected" : ""
+                       }>Europe (Paris)</option>
+                       <option value="eu-north-1" ${
+                         currentAwsRegion == "eu-north-1" ? "selected" : ""
+                       }>Europe (Stockholm)</option>
+                       <option value="eu-south-1" ${
+                         currentAwsRegion == "eu-south-1" ? "selected" : ""
+                       }>Europe (Milan)</option>
+                       <option value="me-south-1" ${
+                         currentAwsRegion == "me-south-1" ? "selected" : ""
+                       }>Middle East (Bahrain)</option>
+                       <option value="sa-east-1" ${
+                         currentAwsRegion == "sa-east-1" ? "selected" : ""
+                       }>South America (São Paulo)</option>
+                   </select>
+                   <div class="description">Select your AWS Region</div>
                </div>
            </div>
            
@@ -469,10 +590,12 @@ class SettingsPanel {
                         // LLM provider settings
                         llmProvider: llmProviderSelect.value,
                         openai: {
-                            apiKey: document.getElementById('openaiApiKey').value
+                            apiKey: document.getElementById('openaiApiKey').value,
+                            model: document.getElementById('openaiModel').value
                         },
                         anthropic: {
-                            apiKey: document.getElementById('anthropicApiKey').value
+                            apiKey: document.getElementById('anthropicApiKey').value,
+                            model: document.getElementById('anthropicModel').value
                         },
                         ollamaEndpoint: document.getElementById('ollamaEndpoint').value,
                         ollamaModel: document.getElementById('ollamaModel').value,

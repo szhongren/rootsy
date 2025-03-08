@@ -40,10 +40,31 @@
           "default": "",
           "description": "API key for OpenAI"
         },
+        "rootsy.openai.model": {
+          "type": "string",
+          "enum": [
+            "gpt-4o",
+            "gpt-4-turbo",
+            "gpt-4",
+            "gpt-3.5-turbo"
+          ],
+          "default": "gpt-4o",
+          "description": "OpenAI model to use for analysis"
+        },
         "rootsy.anthropic.apiKey": {
           "type": "string",
           "default": "",
           "description": "API key for Anthropic"
+        },
+        "rootsy.anthropic.model": {
+          "type": "string",
+          "enum": [
+            "claude-3-opus",
+            "claude-3-sonnet",
+            "claude-3-haiku"
+          ],
+          "default": "claude-3-opus",
+          "description": "Anthropic model to use for analysis"
         },
         "rootsy.ollamaEndpoint": {
           "type": "string",
